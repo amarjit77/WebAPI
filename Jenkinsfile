@@ -8,6 +8,9 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                PUBLISH_DIR = "C:\\JenkinsPublish\\WebAPI"
+                IIS_PATH = "C:\\inetpub\\wwwroot\\MyWebAPI"
+                SITE_NAME = "MyWebAPI"
                 git branch: 'main', url: 'https://github.com/amarjit77/WebAPI.git'
             }
         }     
@@ -52,14 +55,30 @@ pipeline {
 
         stage('Deploy to IIS') {
             steps {
-                // Stop IIS website
-                bat 'powershell -Command "Import-Module WebAdministration; Stop-Website -Name \'MyWebAPI\'"'
+                script {
+                    // Stop IIS website if exists
+                    bat """
+                    powershell -Command "Import-Module WebAdministration;
+                    if (Test-Path IIS:\\Sites\\%SITE_NAME%) {
+                        Stop-Website -Name '%SITE_NAME%'
+                    } else {
+                        Write-Host 'Site not found: %SITE_NAME%'
+                    }"
+                    """
 
-                // Copy published files to IIS directory
-                bat 'xcopy "C:\\JenkinsPublish\\WebAPI\\*" "C:\\inetpub\\wwwroot\\MyWebAPI\\" /E /Y /I'
+                    // Copy files to IIS directory
+                    bat 'xcopy "%PUBLISH_DIR%\\*" "%IIS_PATH%\\" /E /Y /I'
 
-                // Start IIS website
-                bat 'powershell -Command "Import-Module WebAdministration; Start-Website -Name \'MyWebAPI\'"'
+                    // Start IIS website (if it exists)
+                    bat """
+                    powershell -Command "Import-Module WebAdministration;
+                    if (Test-Path IIS:\\Sites\\%SITE_NAME%) {
+                        Start-Website -Name '%SITE_NAME%'
+                    } else {
+                        Write-Host 'Skipping start — site not found: %SITE_NAME%'
+                    }"
+                    """
+                }
             }
         }
     }
