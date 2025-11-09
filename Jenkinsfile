@@ -20,25 +20,25 @@ pipeline {
 
         stage('Restore') {
             steps {
-                bat 'dotnet restore WebAPI/WebAPI.csproj'
+                bat 'dotnet restore API/API.csproj'
             }
         }
 
         stage('Build') {
             steps {
-                bat 'dotnet build WebAPI/WebAPI.csproj --configuration Release'
+                bat 'dotnet build API/API.csproj --configuration Release'
             }
         }
 
         stage('Test') {
             steps {
-                bat 'dotnet test WebAPI/WebAPI.csproj --no-build'
+                bat 'dotnet test API/API.csproj --no-build'
             }
         }
 
         stage('Publish') {
             steps {
-                bat 'dotnet publish WebAPI/WebAPI.csproj -c Release -o publish'
+                bat 'dotnet publish API/API.csproj -c Release -o publish'
             }
         }
 
