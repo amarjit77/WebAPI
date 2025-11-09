@@ -2,15 +2,15 @@ pipeline {
     agent any
 
     environment {
+        PUBLISH_DIR = "C:\\JenkinsPublish\\MyWebAPI"
+        IIS_PATH = "C:\\inetpub\\wwwroot\\MyWebAPI"
+        SITE_NAME = "MyWebAPI"
         PATH = "C:\\Program Files\\dotnet;${env.PATH}"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                PUBLISH_DIR = "C:\\JenkinsPublish\\MyWebAPI"
-                IIS_PATH = "C:\\inetpub\\wwwroot\\MyWebAPI"
-                SITE_NAME = "MyWebAPI"
                 git branch: 'main', url: 'https://github.com/amarjit77/WebAPI.git'
             }
         }     
