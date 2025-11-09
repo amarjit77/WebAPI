@@ -8,11 +8,11 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/amarjit77/WebAPI.git'
+                git branch: 'main', url: 'https://github.com/amarjit77/WebAPI.git'
             }
         }     
         
-                stage('Check Dotnet') {
+        stage('Check Dotnet') {
             steps {
                 bat 'dotnet --version'
             }
