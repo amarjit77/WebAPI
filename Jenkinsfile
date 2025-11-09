@@ -55,30 +55,27 @@ pipeline {
 
         stage('Deploy to IIS') {
             steps {
-                script {
-                    // Stop IIS website if exists
-                    bat """
-                    powershell -Command "Import-Module WebAdministration;
-                    if (Test-Path IIS:\\Sites\\%SITE_NAME%) {
-                        Stop-Website -Name '%SITE_NAME%'
-                    } else {
-                        Write-Host 'Site not found: %SITE_NAME%'
-                    }"
-                    """
+                bat """
+                powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+                "Import-Module WebAdministration; ^
+                if (Test-Path 'IIS:\\Sites\\MyWebAPI') { ^
+                    Stop-Website -Name 'MyWebAPI'; ^
+                } else { ^
+                    Write-Host 'Site not found: MyWebAPI'; ^
+                }"
+                """
 
-                    // Copy files to IIS directory
-                    bat 'xcopy "%PUBLISH_DIR%\\*" "%IIS_PATH%\\" /E /Y /I'
+                bat 'xcopy "C:\\JenkinsPublish\\WebAPI\\*" "C:\\inetpub\\wwwroot\\MyWebAPI\\" /E /Y /I'
 
-                    // Start IIS website (if it exists)
-                    bat """
-                    powershell -Command "Import-Module WebAdministration;
-                    if (Test-Path IIS:\\Sites\\%SITE_NAME%) {
-                        Start-Website -Name '%SITE_NAME%'
-                    } else {
-                        Write-Host 'Skipping start — site not found: %SITE_NAME%'
-                    }"
-                    """
-                }
+                bat """
+                powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+                "Import-Module WebAdministration; ^
+                if (Test-Path 'IIS:\\Sites\\MyWebAPI') { ^
+                    Start-Website -Name 'MyWebAPI'; ^
+                } else { ^
+                    Write-Host 'Skipping start — site not found: MyWebAPI'; ^
+                }"
+                """
             }
         }
     }
