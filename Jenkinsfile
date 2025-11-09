@@ -56,11 +56,7 @@ pipeline {
         stage('Deploy to IIS') {
             steps {
                 bat '''
-                powershell -NoProfile -ExecutionPolicy Bypass -Command "Import-Module WebAdministration; 
-                if (Test-Path 'IIS:\\Sites\\MyWebAPI') { 
-                    Remove-Website -Name 'MyWebAPI' 
-                } 
-                New-Website -Name 'MyWebAPI' -PhysicalPath 'C:\\inetpub\\wwwroot\\MyWebAPI' -Port 8088"
+                powershell -NoProfile -ExecutionPolicy Bypass -Command "Import-Module WebAdministration; if (Test-Path 'IIS:\\Sites\\MyWebAPI') { Remove-Website -Name 'MyWebAPI' }; New-Website -Name 'MyWebAPI' -PhysicalPath 'C:\\inetpub\\wwwroot\\MyWebAPI' -Port 8088"
                 '''
             }
         }
