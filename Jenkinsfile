@@ -45,6 +45,21 @@ pipeline {
         stage('Archive Artifacts') {
             steps {
                 archiveArtifacts artifacts: 'publish/**/*', fingerprint: true
+
+                bat 'dotnet publish API/API.csproj -c Release -o "C:\\JenkinsPublish\\WebAPI"'
+            }
+        }
+
+        stage('Deploy to IIS') {
+            steps {
+                // Stop IIS website
+                bat 'powershell -Command "Import-Module WebAdministration; Stop-Website -Name \'MyWebAPI\'"'
+
+                // Copy published files to IIS directory
+                bat 'xcopy "C:\\JenkinsPublish\\WebAPI\\*" "C:\\inetpub\\wwwroot\\MyWebAPI\\" /E /Y /I'
+
+                // Start IIS website
+                bat 'powershell -Command "Import-Module WebAdministration; Start-Website -Name \'MyWebAPI\'"'
             }
         }
     }
