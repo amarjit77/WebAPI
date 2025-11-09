@@ -9,7 +9,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 PUBLISH_DIR = "C:\\JenkinsPublish\\MyWebAPI"
-                IIS_PATH = "C:\\inetpub\wwwroot\\MyWebAPI"
+                IIS_PATH = "C:\\inetpub\\wwwroot\\MyWebAPI"
                 SITE_NAME = "MyWebAPI"
                 git branch: 'main', url: 'https://github.com/amarjit77/WebAPI.git'
             }
