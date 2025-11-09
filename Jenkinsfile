@@ -49,33 +49,19 @@ pipeline {
             steps {
                 archiveArtifacts artifacts: 'publish/**/*', fingerprint: true
 
-                bat 'dotnet publish API/API.csproj -c Release -o "C:\\JenkinsPublish\\WebAPI"'
+                bat 'dotnet publish API/API.csproj -c Release -o "C:\\JenkinsPublish\\MyWebAPI"'
             }
         }
 
         stage('Deploy to IIS') {
             steps {
-                bat """
-                powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-                "Import-Module WebAdministration; ^
-                if (Test-Path 'IIS:\\Sites\\MyWebAPI') { ^
-                    Stop-Website -Name 'MyWebAPI'; ^
-                } else { ^
-                    Write-Host 'Site not found: MyWebAPI'; ^
-                }"
-                """
-
-                bat 'xcopy "C:\\JenkinsPublish\\WebAPI\\*" "C:\\inetpub\\wwwroot\\MyWebAPI\\" /E /Y /I'
-
-                bat """
-                powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-                "Import-Module WebAdministration; ^
-                if (Test-Path 'IIS:\\Sites\\MyWebAPI') { ^
-                    Start-Website -Name 'MyWebAPI'; ^
-                } else { ^
-                    Write-Host 'Skipping start — site not found: MyWebAPI'; ^
-                }"
-                """
+                bat '''
+                powershell -NoProfile -ExecutionPolicy Bypass -Command "Import-Module WebAdministration; 
+                if (Test-Path 'IIS:\\Sites\\MyWebAPI') { 
+                    Remove-Website -Name 'MyWebAPI' 
+                } 
+                New-Website -Name 'MyWebAPI' -PhysicalPath 'C:\\inetpub\\wwwroot\\MyWebAPI' -Port 8088"
+                '''
             }
         }
     }
