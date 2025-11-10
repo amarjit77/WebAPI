@@ -57,15 +57,22 @@ pipeline {
             steps {
                 powershell '''
                     Import-Module WebAdministration
-                    if (Test-Path "IIS:\\Sites\\MyWebAPI") {
-                        Stop-Website -Name "MyWebAPI"
-                    }
 
-                    Write-Host "Copying new files to IIS path..."
+                    $siteName = "MyWebAPI"
+                    $appPool = (Get-Website $siteName).ApplicationPool
+
+                    Write-Host "Stopping IIS site and app pool..."
+                    Stop-Website -Name $siteName -ErrorAction SilentlyContinue
+                    Stop-WebAppPool -Name $appPool -ErrorAction SilentlyContinue
+
+                    Write-Host "Copying new build files..."
                     Copy-Item "C:\\JenkinsPublish\\MyWebAPI\\*" "C:\\inetpub\\wwwroot\\MyWebAPI\\" -Recurse -Force
 
-                    Write-Host "Starting website..."
-                    Start-Website -Name "MyWebAPI"
+                    Write-Host "Starting app pool and website..."
+                    Start-WebAppPool -Name $appPool
+                    Start-Website -Name $siteName
+
+                    Write-Host "Deployment completed successfully."
                 '''
             }
         }
