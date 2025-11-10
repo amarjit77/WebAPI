@@ -12,5 +12,11 @@ namespace API.Controllers
         {
             return a + b;
         }
+
+        [HttpGet("mul")]
+        public ActionResult<int> mul([FromQuery] int a, [FromQuery] int b)
+        {
+            return a * b;
+        }
     }
 }
