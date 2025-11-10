@@ -18,5 +18,11 @@ namespace API.Controllers
         {
             return a * b;
         }
+
+        [HttpGet("name")]
+        public ActionResult<string> mul([FromQuery] string a, [FromQuery] string b)
+        {
+            return "Your name is : " + a + " " + b + ".";
+        }
     }
 }
