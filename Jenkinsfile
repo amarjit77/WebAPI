@@ -2,9 +2,6 @@ pipeline {
     agent any
 
     environment {
-        PUBLISH_DIR = "C:\\JenkinsPublish\\MyWebAPI"
-        IIS_PATH = "C:\\inetpub\\wwwroot\\MyWebAPI"
-        SITE_NAME = "MyWebAPI"
         PATH = "C:\\Program Files\\dotnet;${env.PATH}"
     }
 
@@ -55,26 +52,40 @@ pipeline {
 
         stage('Deploy to IIS') {
             steps {
-                powershell '''
-                    Import-Module WebAdministration
+            powershell '''
+                Import-Module WebAdministration
 
-                    $siteName = "MyWebAPI"
-                    $appPool = (Get-Website $siteName).ApplicationPool
+                $siteName = "MyWebAPI"
+                $appPool = (Get-Website $siteName).ApplicationPool
+                $publishPath = "C:\\JenkinsPublish\\MyWebAPI\\"
+                $deployPath = "C:\\inetpub\\wwwroot\\MyWebAPI\\"
 
-                    Write-Host "Stopping IIS site and app pool..."
-                    Stop-Website -Name $siteName -ErrorAction SilentlyContinue
-                    Stop-WebAppPool -Name $appPool -ErrorAction SilentlyContinue
+                Write-Host "Stopping IIS site and app pool..."
+                Stop-Website -Name $siteName -ErrorAction SilentlyContinue
+                Stop-WebAppPool -Name $appPool -ErrorAction SilentlyContinue
 
-                    Write-Host "Copying new build files..."
-                    Copy-Item "C:\\JenkinsPublish\\MyWebAPI\\*" "C:\\inetpub\\wwwroot\\MyWebAPI\\" -Recurse -Force
+                # Wait for IIS to fully release locks
+                Write-Host "Waiting for IIS to release file locks..."
+                Start-Sleep -Seconds 5
 
-                    Write-Host "Starting app pool and website..."
-                    Start-WebAppPool -Name $appPool
-                    Start-Website -Name $siteName
+                # Kill any remaining w3wp processes
+                Write-Host "Killing leftover IIS worker processes..."
+                Get-Process w3wp -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
 
-                    Write-Host "Deployment completed successfully."
-                '''
-            }
+                # Now copy the new build files
+                Write-Host "Copying new build files..."
+                Remove-Item "$deployPath*" -Recurse -Force -ErrorAction SilentlyContinue
+                Copy-Item "$publishPath*" "$deployPath" -Recurse -Force
+
+                # Restart the app pool and website
+                Write-Host "Starting app pool and website..."
+                Start-WebAppPool -Name $appPool
+                Start-Website -Name $siteName
+
+                Write-Host "Deployment completed successfully."
+            '''
+        }
+
         }
     }
 
