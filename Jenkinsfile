@@ -56,7 +56,7 @@ pipeline {
         stage('Deploy to IIS') {
             steps {
                 bat '''
-                powershell -NoProfile -ExecutionPolicy Bypass -Command "Import-Module WebAdministration; if (Test-Path 'IIS:\\Sites\\MyWebAPI') { Stop-Website -Name 'MyWebAPI'; }; Copy-Item 'C:\\JenkinsPublish\\WebAPI\\*' 'C:\\inetpub\\wwwroot\\MyWebAPI\\' -Recurse -Force; Start-Website -Name 'MyWebAPI'"
+                powershell -NoProfile -ExecutionPolicy Bypass -Command "Import-Module WebAdministration; if (Test-Path 'IIS:\\Sites\\MyWebAPI') { Stop-Website -Name 'MyWebAPI'; }; Copy-Item 'C:\\JenkinsPublish\\MyWebAPI\\*' 'C:\\inetpub\\wwwroot\\MyWebAPI\\' -Recurse -Force; Start-Website -Name 'MyWebAPI'"
                 '''
             }
         }
